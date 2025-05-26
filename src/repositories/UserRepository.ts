@@ -1,57 +1,73 @@
-import mongoose from "mongoose";
 import { User } from "../models/User";
-import { Address } from "../models/Address";
 
 class UserRepository {
-    async findAll() {
+    async findAll(): Promise<object | void> {
         try {
-            const usersList = await User.find({});
-            return usersList;
+            return await User.find({});
         } catch (error) {
             console.error("Erro ao buscar os usuários!")
             throw error;
         }
     }
 
-    async findbyId(id: any) {
+    async findbyId(id: string): Promise<object | void | null> {
         try {
-            const user = await User.findById(id);
-            return user;
+            if (!id) {
+                return;
+            }
+
+            return await User.findById(id);
         } catch (error) {
             console.error("Erro ao tentar encontrar o usuário!")
             throw error;
         }
     }
 
-    async findByCountry(country: string): Promise<any> {
+    async findByCountry(country: string): Promise<object | void> {
+        try {
+            if (!country) {
+                return;
+            }
 
-        if(!country){ 
-            return; 
+            return await User.find({ "address.country": country });
+        } catch (error) {
+            console.error("Não foi possível encontrar os usuários!")
+            throw error;
         }
-        return await User.find({ "address.country": country });
     }
 
-    async create(data: any): Promise<any> {
+    async create(data: JSON): Promise<object | void> {
         try {
-            const createdUser = await User.create(data);
-            return createdUser;
+            if (!data) {
+                return;
+            }
+
+            return await User.create(data);
         } catch (error) {
             console.error("Não foi possível criar um novo usuário!")
             throw error;
         }
     }
 
-    async update(id: string, data: JSON) {
+    async update(id: string, data: JSON): Promise<object | void | null> {
         try {
-            await User.findByIdAndUpdate(id, data);
+            if (!id || !data) {
+                return;
+            }
+
+            return await User.findByIdAndUpdate(id, data);
         } catch (error) {
             console.error("Erro ao atualizad o usuário!")
             throw error;
         }
     }
 
-    async delete(id: string) {
+    async delete(id: string): Promise<object | void> {
         try {
+            if (!id) {
+                return;
+            }
+
             await User.findByIdAndDelete(id);
         } catch (error) {
             console.error("Erro ao apagar o usuário!")

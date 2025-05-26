@@ -1,4 +1,4 @@
-import { count } from "console";
+
 import { Address } from "../models/Address";
 import UserRepository from "../repositories/UserRepository";
 import { Request, Response } from "express";
@@ -7,18 +7,30 @@ class UserController {
     async index(req: Request, res: Response): Promise<void> {
         try {
             const getAllUsers = await UserRepository.findAll();
-            res.status(200).json(getAllUsers);
+
+            if (getAllUsers) {
+                res.status(200).json(getAllUsers);
+            } else {
+                res.status(400).json({ message: "Não foi possível localizar os usuários!" })
+            }
         } catch (error) {
-            res.status(400).json({ message: error })
+            res.status(500).json({ message: error })
             throw error;
         }
     }
 
     async show(req: Request, res: Response) {
+        const userId = req.params.id;
+
         try {
-            const userId = req.params.id;
             const getUser = await UserRepository.findbyId(userId);
-            res.status(200).json(getUser);
+
+            if (getUser) {
+                res.status(200).json({ message: "Usuário encontrado!", data: getUser });
+            } else {
+                res.status(400).send({ message: "Usuário não encontrado!" })
+            }
+
         } catch (error) {
             res.status(400).json({ message: error })
             throw error;
@@ -31,7 +43,12 @@ class UserController {
         try {
             const usersByCountry = await UserRepository.findByCountry(country);
 
-            res.status(200).json({ message: "Usuários encontrados", data: usersByCountry });
+            if (usersByCountry) {
+                res.status(200).json({ message: "Usuários encontrados", data: usersByCountry });
+            } else {
+                res.status(400).send({ message: "Usuários com país " + country + " não encontrados!" })
+            }
+
         } catch (error) {
             res.status(500).json({ message: "Algo deu errado! " + error });
             throw error;
@@ -57,21 +74,26 @@ class UserController {
             await UserRepository.create(completeUser);
             res.status(201).json({ message: "Usuario criado com sucesso!", data: newUser });
         } catch (error) {
-            res.status(400).json({ message: `Algo deu errado! - ${error}` });
+            res.status(500).json({ message: `Algo deu errado! - ${error}` });
             throw error;
         }
     }
 
     async update(req: Request, res: Response): Promise<void> {
+        const userId = req.params.id;
+        const data = req.body;
+        
         try {
-            const userId = req.params.id;
-            const data = req.body;
+            const updatedUser = await UserRepository.update(userId, data);
+            
+            if(updatedUser){
+                res.status(200).json({message: "Usuario atualizado com sucesso!", data: updatedUser})
+            }else{
+                res.status(400).send({message: "Não foi possível atualizar o usuário!"})
+            }
 
-            await UserRepository.update(userId, data);
-
-            res.status(200).json({ message: "Usuario atualizado!" });
         } catch (error) {
-            res.status(400).json({ message: `Algo deu errado! - ${error}` })
+            res.status(500).json({ message: `Algo deu errado! - ${error}` })
             throw error;
         }
     }

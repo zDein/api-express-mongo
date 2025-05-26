@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { Address } from "../models/Address";
 
 class AddressRepository {
@@ -12,7 +11,7 @@ class AddressRepository {
         }
     }
 
-    async findbyId(id: any) {
+    async findbyId(id: string) {
         try {
             const address = await Address.findById(id);
             return address;
@@ -22,10 +21,10 @@ class AddressRepository {
         }
     }
 
-    async create(data: any): Promise<any> {
+    async create(data: JSON) {
         try {
-            const createdAddress = await Address.create(data);
-            return createdAddress;
+           await Address.create(data);
+
         } catch (error) {
             console.error("Não foi possível criar um novo usuário!")
             throw error;
