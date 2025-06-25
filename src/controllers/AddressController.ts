@@ -1,60 +1,54 @@
-
 import AddressRepository from "../repositories/AddressRepository";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 class AddressController {
-    async index(req: Request, res: Response) {
+    async index(req: Request, res: Response, next: NextFunction) {
         try {
             const getAllAddress = await AddressRepository.findAll();
             res.status(200).json(getAllAddress);
         } catch (error) {
-            res.status(400).json({ message: error })
-            throw error;
+            next(error);
         }
     }
 
-    async show(req: Request, res: Response) {
+    async show(req: Request, res: Response, next: NextFunction) {
         try {
             const addressId = req.params.id;
             const getAddress = await AddressRepository.findbyId(addressId);
             res.status(200).json(getAddress);
         } catch (error) {
-            res.status(400).json({ message: error })
-            throw error;
+            next(error);
         }
     }
 
-    async storage(req: Request, res: Response) {
+    async storage(req: Request, res: Response, next: NextFunction) {
         try {
             const newAddress = await AddressRepository.create(req.body);
-            res.status(201).json({ message: "Usuario criado com sucesso!", data: newAddress });
+            res.status(201).json({ message: "Endereço criado com sucesso!", data: newAddress });
         } catch (error) {
-            res.status(400).json({ message: `Algo deu errado! - ${error}` });
-            throw error;
+            next(error);
         }
     }
 
-    async update(req: Request, res: Response) {
+    async update(req: Request, res: Response, next: NextFunction) {
         try {
             const addressId = req.params.id;
             const data = req.body;
 
             await AddressRepository.update(addressId, data);
 
-            res.status(200).json({ message: "Usuario atualizado!" });
+            res.status(200).json({ message: "Endereço atualizado!" });
         } catch (error) {
-            res.status(400).json({ message: `Algo deu errado! - ${error}` })
-            throw error;
+            next(error);
         }
     }
 
-    async delete(req: Request, res: Response) {
+    async delete(req: Request, res: Response, next: NextFunction) {
         try {
             await AddressRepository.delete(req.params.id);
-            res.status(200).json({ message: "Usuario deletado com sucesso!" });
+            res.status(200).json({ message: "Endereço deletado com sucesso!" });
         } catch (error) {
-            res.status(400).json({ message: "Falha ao deletar o usuario!", error: error });
-            throw error;
+            next(error);
         }
     }
 }
